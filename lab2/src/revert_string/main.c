@@ -6,9 +6,11 @@
 
 int main(int argc, char *argv[])
 {
+    /* argc должно быть 2 для правильного выполнения */
 	if (argc != 2)
 	{
-		printf("Usage: %s string_to_revert\n", argv[0]);
+        /* Мы печатаем argv [0], предполагая, что это имя программы */
+		printf("Usage: %s string_to_revert\n", argv[0]); 
 		return -1;
 	}
 
