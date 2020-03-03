@@ -7,6 +7,6 @@ while [ $count -lt $max ];
 do 
 count=$[ $count + 1 ]
 rand=$(od -A n -td -N 1 /dev/random |tr -d ' ') 
-num="$((rand % 10))"
-echo $num >> nambers.txt
+num="${num}$((rand % 10)) "
 done 
+echo $num > nambers.txt
