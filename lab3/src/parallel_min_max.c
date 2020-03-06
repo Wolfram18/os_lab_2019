@@ -42,16 +42,31 @@ int main(int argc, char **argv) {
             seed = atoi(optarg);
             // your code here
             // error handling
+            if (seed <= 0) {
+                printf("seed is a positive number\n");
+                return -1;
+            }
+            /////////////////
             break;
           case 1:
             array_size = atoi(optarg);
             // your code here
             // error handling
+            if (array_size <= 0) {
+                printf("array_size is a positive number\n");
+                return -1;
+            }
+            /////////////////
             break;
           case 2:
             pnum = atoi(optarg);
             // your code here
             // error handling
+            if (pnum <= 0) {
+                printf("pnum is a positive number\n");
+                return -1;
+            }
+            /////////////////
             break;
           case 3:
             with_files = true;
@@ -102,9 +117,11 @@ int main(int argc, char **argv) {
         // parallel somehow
 
         if (with_files) {
-          // use files here
+          // use files here 2
+          
         } else {
-          // use pipe here
+          // use pipe here 3
+          
         }
         return 0;
       }
@@ -130,9 +147,11 @@ int main(int argc, char **argv) {
     int max = INT_MIN;
 
     if (with_files) {
-      // read from files
+      // read from files 2 
+
     } else {
-      // read from pipes
+      // read from pipes 3
+
     }
 
     if (min < min_max.min) min_max.min = min;
