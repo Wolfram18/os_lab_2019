@@ -10,6 +10,9 @@ int main(int argc, char **argv) {
     return 1;
   }
 
+  //argv[1] = "10";
+  //argv[2] = "10";
+
   int seed = atoi(argv[1]);
   if (seed <= 0) {
     printf("seed is a positive number\n");

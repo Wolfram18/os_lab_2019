@@ -9,19 +9,17 @@ struct MinMax GetMinMax(int *array, unsigned int begin, unsigned int end) {
 
   printf("Array \n");
   //Max
-  for(int i = begin; i < end; ++i) {
+  int i;
+  for(i = begin; i < end; ++i) {
     printf("%d \n", array[i]);
     if(array[i] > min_max.max)
-    {
         min_max.max = array[i];
-        
-    }
   }
 
   //Min
-  for(int i = begin; i < end; ++i) {
+  for(i = begin; i < end; ++i) {
     if(array[i] < min_max.min)
-      min_max.min = array[i];
+        min_max.min = array[i];
   }
 
   return min_max;
