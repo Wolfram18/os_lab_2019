@@ -129,13 +129,15 @@ int main(int argc, char **argv) {
 
   // Pipe
   // Данные обрабатываются по алгоритму "первым пришел, первым обслужен"
-  int file_descriptor[2];
-  if (pipe(file_descriptor) == -1)
-  {
-      return -1;
+  int file_descriptor[pnum][2];
+  int i;
+  for (i = 0; i < pnum; i++) {
+    if (pipe(file_descriptor[pnum]) == -1)
+    {
+        return -1;
+    }
   }
 
-  int i;
   for (i = 0; i < pnum; i++) {
     printf("%d\n", i);
     // child_pid - идентификатор процесса
@@ -167,8 +169,8 @@ int main(int argc, char **argv) {
           fclose(fp);
         } else {
           // use pipe here 3
-          write(file_descriptor[1], (void*)bmin, strlen(bmin));
-          write(file_descriptor[1], (void*)bmax, strlen(bmax));
+          write(file_descriptor[i][1], (void*)bmin, strlen(bmin));
+          write(file_descriptor[i][1], (void*)bmax, strlen(bmax));
         }
         return 0;
       }
@@ -209,9 +211,9 @@ int main(int argc, char **argv) {
       fclose(fp);
     } else {
       // read from pipes 3
-      read(file_descriptor[0],buffer,10);
+      read(file_descriptor[pnum][0],buffer,10);
       min_max.min = atoi(buffer);
-      read(file_descriptor[0],buffer,10);
+      read(file_descriptor[pnum][0],buffer,10);
       min_max.max = atoi(buffer);
     }
 
