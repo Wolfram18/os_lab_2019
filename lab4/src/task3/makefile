@@ -12,4 +12,4 @@ process_memory :
 	#./process_memory
 
 clean :
-	rm zombie_process
+	rm process_memory proc_mem
