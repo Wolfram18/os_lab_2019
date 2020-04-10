@@ -6,6 +6,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <errno.h>
+#include <signal.h>
 
 #include <sys/time.h>
 #include <sys/types.h>
@@ -17,12 +18,34 @@
 #include "find_min_max.h"
 #include "utils.h"
 
+pid_t* children;
+int pnum;
+void MyAlarm(){
+    int status, i;
+    for (i = 0; i < pnum; i++) {
+        //Приостанавливает выполнение вызывающего процесса до тех пор, 
+        //пока дочерний элемент, указанный в аргументе pid, не завершиться.
+        //WNOHANG - означает немедленное возвращение управления, 
+        //если ни один дочерний процесс не завершил выполнение.
+        int result = waitpid(children[i], &status, WNOHANG);
+        if (result == 0) {
+            //Немедленное завершение процесса
+            kill(children[i], SIGKILL);
+            printf("%d is killed\n", children[i]);
+        } 
+        else {
+            printf("%d is finished\n", children[i]);
+        }
+    }
+}
+
 int main(int argc, char **argv) {
    // Инициализация до начала работы
   int seed = -1;
   int array_size = -1;
-  int pnum = -1;
+  pnum = -1;
   bool with_files = false;
+  int timeout = -1;
   int f;
 
   while (true) {
@@ -33,6 +56,7 @@ int main(int argc, char **argv) {
                                       {"array_size", required_argument, 0, 0},
                                       {"pnum", required_argument, 0, 0},
                                       {"by_files", required_argument, 0, 'f'},
+                                      {"timeout", required_argument, 0, 0},
                                       {0, 0, 0, 0}};
     int option_index = 0;
     // Возвращает первый параметр и задает некоторые глобальные переменные
@@ -82,6 +106,16 @@ int main(int argc, char **argv) {
             }
             if (f) 
                 with_files = true;
+            break;
+          case 4:
+            timeout = atoi(optarg);
+            // your code here
+            // error handling
+            if (timeout <= 0) {
+                printf("timeout is a positive number\n");
+                return 1;
+            }
+            /////////////////
             break;
           defalut:
             printf("Index %d is out of options\n", option_index);
@@ -137,6 +171,7 @@ int main(int argc, char **argv) {
         return -1;
     }
   }
+  children = malloc(sizeof(pid_t)*pnum);
 
   for (i = 0; i < pnum; i++) {
     printf("%d\n", i);
@@ -146,6 +181,7 @@ int main(int argc, char **argv) {
     if (child_pid >= 0) {
       // successful fork
       printf("Fork: %d\n", child_pid);
+      children[i] = child_pid;
       active_child_processes += 1;
       // Процесс-родитель получает идентификатор (PID) потомка
       // Процесс-потомок получает в качестве кода возврата значение 0
@@ -181,10 +217,19 @@ int main(int argc, char **argv) {
     }
   }
 
-  while (active_child_processes > 0) {
-    // your code here
-    wait(0);
-    active_child_processes -= 1;
+  if (timeout != -1) {
+    //Привязка функции MyAlarm к сигналу SIGALRM
+    signal(SIGALRM, MyAlarm);
+    //Установка будильника для запуска MyAlarm
+    alarm(timeout);
+    pause();
+  } 
+  else {
+        while (active_child_processes > 0) {
+            // your code here
+            wait(0);
+            active_child_processes -= 1;
+        }
   }
 
   struct MinMax min_max;
