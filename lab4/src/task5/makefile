@@ -12,5 +12,5 @@ all : parallel_sum.c sum.c utils.c
 	#./sum_ --seed 1 --array_size 100 --threads_num 10
 
 clean :
-	rm sum.o sum libsum.so
+	rm sum.o sum libsum.so sum_
 	#make -f makefile clean
