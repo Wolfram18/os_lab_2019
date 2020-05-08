@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <math.h>
+#include <errno.h>
 
 #include <getopt.h>
 #include <netinet/in.h>
@@ -13,6 +15,8 @@
 
 #include "pthread.h"
 #include "mult.h"
+
+int port = -1;
 
 struct FactorialArgs {
   uint64_t begin;
@@ -27,7 +31,7 @@ uint64_t Factorial(const struct FactorialArgs *args) {
   for (i = (*args).begin; i < (*args).end; i++) 
     ans *= i;
   ans %= (*args).mod;
-  printf("(%lu - %lu) Result: %lu\n", (*args).begin, (*args).end-1, ans);
+  printf("%d (%lu - %lu) result: %lu\n", port, (*args).begin, (*args).end-1, ans);
   return ans;
 }
 
@@ -36,9 +40,9 @@ void *ThreadFactorial(void *args) {
   return (void *)(uint64_t *)Factorial(fargs);
 }
 
+
 int main(int argc, char **argv) {
   int tnum = -1;
-  int port = -1;
   while (true) {
     int current_optind = optind ? optind : 1;
     static struct option options[] = {{"port", required_argument, 0, 0},
@@ -162,16 +166,20 @@ int main(int argc, char **argv) {
       memcpy(&end, from_client + sizeof(uint64_t), sizeof(uint64_t));
       memcpy(&mod, from_client + 2 * sizeof(uint64_t), sizeof(uint64_t));
 
-      fprintf(stdout, "Receive: %lu %lu %lu\n", begin, end, mod);
+      fprintf(stdout, "%d receive: %lu %lu %lu\n", port, begin, end, mod);
 
       struct FactorialArgs args[tnum];
       uint32_t i;
       for ( i = 0; i < tnum; i++) {
         // TODO: parallel somehow
-        args[i].begin = begin + (end-begin+1)/tnum*i;
-        args[i].end = begin + (end-begin+1)/tnum*(i+1);
         args[i].mod = mod;
-        //Создаём потоки с функцией подсёта факториала
+        args[i].begin = begin + (end-begin+1)/tnum*i;
+        if (tnum%2==1 & i == (tnum-1))
+            args[i].end = begin + (end-begin+1)/tnum*(i+1) +1;
+        else
+            args[i].end = begin + (end-begin+1)/tnum*(i+1);
+        fprintf(stdout, "%d %d - %lu %lu\n", port, i, args[i].begin, args[i].end);
+        //Создаём потоки с функцией подсчёта факториала
         if (pthread_create(&threads[i], NULL, ThreadFactorial,
                            (void *)&args[i])) {
           printf("Error: pthread_create failed!\n");
@@ -186,7 +194,7 @@ int main(int argc, char **argv) {
         total = MultModulo(total, result, mod);
       }
 
-      printf("Total: %lu\n", total);
+      printf("%d total: %lu\n", port, total);
 
       //Отправляет сообщения в сокет клиента
       char buffer[sizeof(total)];

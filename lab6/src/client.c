@@ -190,7 +190,7 @@ int main(int argc, char **argv) {
   fclose(addresses2);
 
   for (i = 0; i < servers_num; i++) {
-    printf("ip: %s / port: %d\n", (*(to+i)).ip, (*(to+i)).port);
+    printf("Client find %s:%d\n", (*(to+i)).ip, (*(to+i)).port);
   }
 
   sleep(1);
@@ -213,7 +213,7 @@ int main(int argc, char **argv) {
   for (i = 0; i < servers_num; i++) 
     pthread_join(threads[i], NULL);
 
-  printf("\nResult: %d\n", result);
+  printf("---------------------------\nResult: %d\n", result);
   free(to);
   return 0;
 }
