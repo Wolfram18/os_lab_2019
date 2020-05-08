@@ -110,14 +110,15 @@ int main(int argc, char **argv) {
   int opt_val = 1;
   setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt_val, sizeof(opt_val));
 
-  //Привязываем к сокету адрес через bind()
+  //Cвязывает локальный сетевой адрес транпортного уровня с сокетом
   int err = bind(server_fd, (struct sockaddr *)&server, sizeof(server));
   if (err < 0) {
     fprintf(stderr, "Can not bind to socket!");
     return 1;
   }
   
-  //В его задачу входит перевод TCP–сокета в пассивное (слушающее) состояние и создание очередей сокетов
+  //Cообщает уровню протокола, что сокет готов к принятию новых входящих соединений
+  //Перевод сокета в пассивное (слушающее) состояние и создание очередей сокетов
   err = listen(server_fd, 128); //128 - макс размер очереди
   if (err < 0) {
     fprintf(stderr, "Could not listen on socket\n");
@@ -130,8 +131,7 @@ int main(int argc, char **argv) {
   while (true) {
     struct sockaddr_in client;
     socklen_t client_len = sizeof(client);
-    //Если очередь полностью установленных соединений не пуста, то он возвращает дескриптор для первого присоединенного 
-    //сокета в этой очереди, одновременно удаляя его из очереди. Если очередь пуста, то вызов ожидает появления полностью установленного соединения.
+    //Является блокирующим – он ожидает поступления запроса на соединение
     int client_fd = accept(server_fd, (struct sockaddr *)&client, &client_len);
 
     if (client_fd < 0) {
@@ -178,7 +178,7 @@ int main(int argc, char **argv) {
             args[i].end = begin + (end-begin+1)/tnum*(i+1) +1;
         else
             args[i].end = begin + (end-begin+1)/tnum*(i+1);
-        fprintf(stdout, "%d %d - %lu %lu\n", port, i, args[i].begin, args[i].end);
+        //fprintf(stdout, "%d %d - %lu %lu\n", port, i, args[i].begin, args[i].end);
         //Создаём потоки с функцией подсчёта факториала
         if (pthread_create(&threads[i], NULL, ThreadFactorial,
                            (void *)&args[i])) {
@@ -211,6 +211,5 @@ int main(int argc, char **argv) {
     //Закрывает (или прерывает) все существующие соединения сокета
     close(client_fd);
   }
-
   return 0;
 }

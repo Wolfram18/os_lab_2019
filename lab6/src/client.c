@@ -65,7 +65,7 @@ void ParallelServer(void *args) {
         exit(1);
     }
 
-    //Установления логического соединения со стороны клиента
+    //Установления логического соединения со стороны клиента + неявный bind()
     if (connect(sck, (struct sockaddr *)&server, sizeof(server)) < 0) {
         fprintf(stderr, "Connection failed\n");
         //fprintf(stderr, "error creating connection: %s ", strerror(errno));
