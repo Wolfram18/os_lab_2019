@@ -172,31 +172,26 @@ int main(int argc, char **argv) {
     return -1;
   }
   //Подсчитываем кол-во адресов
-  char str[30];
+  char buf[256];
   unsigned int servers_num = 0;
-  while (true) {
-    fgets(str, sizeof(str), addresses);
-    if (feof(addresses) != 0)
-        break;
+  while(fgets(buf,256,addresses) != NULL)
     servers_num++;
-  }
   struct Server *to = malloc(sizeof(struct Server) * servers_num);
-  //Заполняем в структуру ip и port
-  fseek(addresses,0,SEEK_SET);
+  fclose(addresses);
+  //Заполняем в структуру to - ip и port
+  FILE* addresses2 = fopen(servers, "r");
   int i = 0;
-  while (true) {
-    fgets(str, sizeof(str), addresses);
-    if (feof(addresses) != 0)
-        break;
-    strcpy((*(to+i)).ip, strtok(str,":"));
+  while (!feof(addresses2)) {
+    fgets(buf, sizeof(buf), addresses2);
+    strcpy((*(to+i)).ip, strtok(buf,":"));
     (*(to+i)).port = atoi(strtok(NULL, ":"));
     i++;
   }
-  fclose(addresses);
+  fclose(addresses2);
 
-  /*for (i = 0; i < servers_num; i++) {
+  for (i = 0; i < servers_num; i++) {
     printf("ip: %s / port: %d\n", (*(to+i)).ip, (*(to+i)).port);
-  }*/
+  }
 
   sleep(1);
   //Создаём N потоков

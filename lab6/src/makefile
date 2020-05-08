@@ -7,9 +7,10 @@ all : mult.c server.c
 	gcc server.c -L. -lmult -lpthread -o server
 	gcc client.c -L. -lmult -lpthread -o client
 	#LD_LIBRARY_PATH=$(pwd)
-	#./server --port 20001 --tnum 3
-	#./server --port 20002 --tnum 4
-	#./client --k 10 --mod 44 --servers ./servers.txt
+	#./server --port 20001 --tnum 2 &
+	#./server --port 20002 --tnum 5 &
+	#./client --k 20 --mod 47 --servers ./servers.txt
+	#kill $(pgrep server)
 
 clean :
 	rm mult.o libmult.so server client
