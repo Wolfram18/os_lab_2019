@@ -95,15 +95,19 @@ int main(int argc, char **argv) {
       perror("sendto problem (SOCK_DGRAM)");
       exit(1);
     }
+    sleep(1);
 
+    /*виснет, если не получили ответ от сервера
     //могут использоваться для получения данных, независимо от того, 
     //является ли сокет ориентированным на соединения или нет.
     if (recvfrom(sockfd, recvline, BUFSIZE, 0, NULL, NULL) == -1) {
       perror("recvfrom problem (SOCK_DGRAM)");
       exit(1);
     }
-
+    //ОТВЕТ
     printf("REPLY FROM SERVER= %s\n", recvline);
+    */
+    
   }
 
   //Закрывает (или прерывает) все существующие соединения сокета

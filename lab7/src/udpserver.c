@@ -16,6 +16,7 @@
 
 int main(int argc, char *argv[]) {
   int sockfd, n;
+  int sockfd2 = 0;
   
   struct sockaddr_in servaddr;
   struct sockaddr_in cliaddr;
@@ -82,7 +83,11 @@ int main(int argc, char *argv[]) {
   printf("SERVER starts...\n");
 
   //Слушаем в цикле
+  int flag = 1;
   while (1) {
+    if (sockfd2 != 0) {
+        sockfd = sockfd2;
+    }
     unsigned int len = SLEN;
 
     //могут использоваться для получения данных, независимо от того, 
@@ -93,6 +98,7 @@ int main(int argc, char *argv[]) {
     }
     mesg[n] = 0;
 
+    //ЗАПРОС
     printf("REQUEST %s      FROM %s : %d\n", mesg,
            inet_ntop(AF_INET, (void *)&cliaddr.sin_addr.s_addr, ipadr, 16),
            ntohs(cliaddr.sin_port));
@@ -103,5 +109,24 @@ int main(int argc, char *argv[]) {
       perror("sendto problem (SOCK_DGRAM)");
       exit(1);
     }
+
+    if(flag) {
+        // падение сервера = сокет не может принимать данные
+        shutdown(sockfd, SHUT_RDWR);
+        close(sockfd);
+
+        sleep(1);
+
+        if ((sockfd2 = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
+            perror("socket problem (SOCK_DGRAM)");
+            exit(1);
+        }
+        if (bind(sockfd2, (SADDR *)&servaddr, SLEN) < 0) {
+            perror("bind problem");
+            exit(1);
+        }
+        flag = -1;
+    }
+
   }
 }
