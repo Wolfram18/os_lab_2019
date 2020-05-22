@@ -64,43 +64,52 @@ int main(int argc, char *argv[]) {
 
   char buf[BUFSIZE];
 
+  //Возвращает файловый дескриптор(>=0), который будет использоваться как ссылка на созданный коммуникационный узел
+  //SOCK_STREAM для потоковых сокетов
   if ((lfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-    perror("socket");
+    perror("socket problem (SOCK_STREAM)");
     exit(1);
   }
 
+  //параметры для настройки адреса сокета
   memset(&servaddr, 0, kSize);
   servaddr.sin_family = AF_INET;
   servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
   servaddr.sin_port = htons(SERV_PORT);
 
+  //настройка адреса сокета
   if (bind(lfd, (SADDR *)&servaddr, kSize) < 0) {
-    perror("bind");
+    perror("bind problem (SOCK_STREAM)");
     exit(1);
   }
 
+  //Cообщает уровню протокола, что сокет готов к принятию новых входящих соединений
+  //Перевод сокета в пассивное (слушающее) состояние и создание очередей сокетов
   if (listen(lfd, 5) < 0) {
-    perror("listen");
+    perror("listen problem (SOCK_STREAM)");
     exit(1);
   }
 
+  //Слушаем в цикле
   while (1) {
     unsigned int clilen = kSize;
 
+    //Является блокирующим – ожидает поступления запроса на соединение
     if ((cfd = accept(lfd, (SADDR *)&cliaddr, &clilen)) < 0) {
-      perror("accept");
+      perror("accept problem (SOCK_STREAM)");
       exit(1);
     }
-    printf("connection established\n");
+    printf("connection established (SOCK_STREAM)\n");
 
     while ((nread = read(cfd, buf, BUFSIZE)) > 0) {
       write(1, &buf, nread);
     }
 
     if (nread == -1) {
-      perror("read");
+      perror("read problem (SOCK_STREAM)");
       exit(1);
     }
+    //Закрывает (или прерывает) все существующие соединения сокета
     close(cfd);
   }
 }

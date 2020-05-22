@@ -61,27 +61,34 @@ int main(int argc, char *argv[]) {
   }
   char mesg[BUFSIZE], ipadr[16];
 
+  //Возвращает файловый дескриптор(>=0), который будет использоваться как ссылка на созданный коммуникационный узел
+  //SOCK_DGRAM – для датаграммных
   if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
-    perror("socket problem");
+    perror("socket problem (SOCK_DGRAM)");
     exit(1);
   }
 
+  //параметры для настройки адреса сокета
   memset(&servaddr, 0, SLEN);
   servaddr.sin_family = AF_INET;
   servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
   servaddr.sin_port = htons(SERV_PORT);
 
+  //настройка адреса сокета
   if (bind(sockfd, (SADDR *)&servaddr, SLEN) < 0) {
-    perror("bind problem");
+    perror("bind problem (SOCK_DGRAM)");
     exit(1);
   }
   printf("SERVER starts...\n");
 
+  //Слушаем в цикле
   while (1) {
     unsigned int len = SLEN;
 
+    //могут использоваться для получения данных, независимо от того, 
+    //является ли сокет ориентированным на соединения или нет.
     if ((n = recvfrom(sockfd, mesg, BUFSIZE, 0, (SADDR *)&cliaddr, &len)) < 0) {
-      perror("recvfrom");
+      perror("recvfrom problem (SOCK_DGRAM)");
       exit(1);
     }
     mesg[n] = 0;
@@ -90,8 +97,10 @@ int main(int argc, char *argv[]) {
            inet_ntop(AF_INET, (void *)&cliaddr.sin_addr.s_addr, ipadr, 16),
            ntohs(cliaddr.sin_port));
 
+    //отправляет сообщения в сокет  
+    //соединение не обязательно
     if (sendto(sockfd, mesg, n, 0, (SADDR *)&cliaddr, len) < 0) {
-      perror("sendto");
+      perror("sendto problem (SOCK_DGRAM)");
       exit(1);
     }
   }
